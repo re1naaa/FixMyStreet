@@ -1,5 +1,5 @@
 import uuid
-from datetime import timedelta
+from datetime import timedelta, timezone
 from math import asin, cos, radians, sin, sqrt
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -161,8 +161,11 @@ def neighborhood_health(db: Session = Depends(get_db), user=Depends(get_current_
     denominator = len(all_reports)
     score = round((resolved / denominator) * 100) if denominator else 100
     cutoff = utcnow() - timedelta(days=30)
-    recent_resolved = sum(item.status == ReportStatus.resolved and item.updated_at >= cutoff for item in all_reports)
-    recent_open = sum(item.status != ReportStatus.resolved and item.created_at >= cutoff for item in all_reports)
+    def _aware(value):
+        return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+    cutoff = _aware(cutoff)
+    recent_resolved = sum(item.status == ReportStatus.resolved and _aware(item.updated_at) >= cutoff for item in all_reports)
+    recent_open = sum(item.status != ReportStatus.resolved and _aware(item.created_at) >= cutoff for item in all_reports)
     trend = recent_resolved - recent_open
     return NeighborhoodHealth(score=score, open_issues=open_count, resolved_issues=resolved, improvement_trend=trend)
 
