@@ -154,10 +154,10 @@ def seed(db: Session) -> None:
             "FMS-DEMO-005": (42.4638, 21.4696),
         }
         for code, (latitude, longitude) in demo_coordinates.items():
-            existing = db.scalar(select(Report).where(Report.reference_code == code))
-            if existing is not None:
-                existing.latitude = latitude
-                existing.longitude = longitude
+            report = db.scalar(select(Report).where(Report.reference_code == code))
+            if report is not None:
+                report.latitude = latitude
+                report.longitude = longitude
     db.commit()
 
 

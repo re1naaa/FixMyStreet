@@ -70,7 +70,7 @@ export default function LoginScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <Pressable style={styles.back} onPress={() => router.back()}>
+          <Pressable style={styles.back} onPress={() => router.replace("/welcome")}>
             <ArrowLeft size={22} color={colors.text} />
           </Pressable>
 
@@ -85,7 +85,7 @@ export default function LoginScreen() {
           </View>
           <Text style={styles.title}>{t("welcomeBack")}</Text>
           <Text style={styles.subtitle}>
-            Sign in to report issues and track your city.
+            {t("loginSubtitle")}
           </Text>
 
           <View style={styles.field}>
@@ -131,9 +131,9 @@ export default function LoginScreen() {
               >
                 {remember && <Text style={styles.checkMark}>✓</Text>}
               </View>
-              <Text style={styles.optionText}>Remember me</Text>
+              <Text style={styles.optionText}>{t("rememberMe")}</Text>
             </Pressable>
-            <Text style={styles.forgot}>Forgot password?</Text>
+            <Text style={styles.forgot}>{t("forgotPassword")}</Text>
           </View>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -150,9 +150,9 @@ export default function LoginScreen() {
           </Pressable>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>New to FixMyStreet? </Text>
+            <Text style={styles.footerText}>{t("newAccount")} </Text>
             <Link href="/register" style={styles.link}>
-              Create account
+              {t("register")}
             </Link>
           </View>
         </ScrollView>

@@ -1,22 +1,24 @@
 import { Redirect, Tabs, router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { Compass, House, Plus, UserRound, Users } from "lucide-react-native";
-import { colors } from "../../constants/colors";
 import { useSession } from "../../hooks/useSession";
 import { usePreferences } from "../../hooks/usePreferences";
+import * as Haptics from "expo-haptics";
 
 function TabBar({ state }: any) {
-  const { t, colors: themeColors } = usePreferences();
+  const { t, theme, colors } = usePreferences();
   const labels = [t("home"), t("explore"), "", t("community"), t("profile")];
   const icons = [House, Compass, Plus, Users, UserRound];
   const paths = ["/(tabs)", "/(tabs)/explore", "/(tabs)/report", "/(tabs)/community", "/(tabs)/profile"];
-  return <View style={[styles.bar, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
-    {state.routes.map((route: any, index: number) => {
-      const active = state.index === index;
-      const Icon = icons[index] ?? House;
-      if (index === 2) return <Pressable key={route.key} style={styles.reportButton} onPress={() => router.push(paths[index])}><Plus size={27} color="#FFF" strokeWidth={3} /></Pressable>;
-      return <Pressable key={route.key} style={styles.tab} onPress={() => router.replace(paths[index])}><Icon size={21} color={active ? colors.accent : colors.muted} strokeWidth={active ? 2.6 : 2} /><Text style={[styles.label, active && styles.labelActive]}>{labels[index]}</Text></Pressable>;
-    })}
+  return <View style={styles.shell}>
+    <View style={[styles.bar, { backgroundColor: theme === "dark" ? "rgba(28,28,30,0.96)" : "rgba(255,255,255,0.94)", borderColor: theme === "dark" ? "rgba(255,255,255,0.10)" : "rgba(60,60,67,0.12)" }]}>
+      {state.routes.map((route: any, index: number) => {
+        const active = state.index === index;
+        const Icon = icons[index] ?? House;
+        if (index === 2) return <Pressable key={route.key} accessibilityLabel={t("report")} style={({ pressed }) => [styles.reportButton, pressed && styles.pressed]} onPress={() => { void Haptics.selectionAsync(); router.push(paths[index]); }}><View style={styles.reportInner}><Plus size={25} color="#FFFFFF" strokeWidth={2.8} /></View></Pressable>;
+        return <Pressable key={route.key} accessibilityRole="tab" accessibilityState={{ selected: active }} style={({ pressed }) => [styles.tab, pressed && styles.tabPressed]} onPress={() => router.replace(paths[index])}><Icon size={22} color={active ? colors.accent : colors.muted} strokeWidth={active ? 2.6 : 1.8} /><Text numberOfLines={1} style={[styles.label, { color: active ? colors.accent : colors.muted }]}>{labels[index]}</Text></Pressable>;
+      })}
+    </View>
   </View>;
 }
 
@@ -27,4 +29,13 @@ export default function TabsLayout() {
   return <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}><Tabs.Screen name="index" /><Tabs.Screen name="explore" /><Tabs.Screen name="report" /><Tabs.Screen name="community" /><Tabs.Screen name="profile" /></Tabs>;
 }
 
-const styles = StyleSheet.create({ bar: { height: 78, paddingHorizontal: 8, paddingBottom: 10, flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderTopWidth: 1, borderTopColor: colors.border, shadowColor: "#101D35", shadowOpacity: 0.08, shadowRadius: 16, elevation: 12 }, tab: { flex: 1, height: 58, alignItems: "center", justifyContent: "center", gap: 3 }, label: { color: colors.muted, fontSize: 10, fontWeight: "700" }, labelActive: { color: colors.accent }, reportButton: { width: 58, height: 58, borderRadius: 29, marginHorizontal: 7, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center", marginTop: -24, borderWidth: 5, borderColor: colors.background, shadowColor: colors.accent, shadowOpacity: 0.28, shadowRadius: 12, elevation: 8 } });
+const styles = StyleSheet.create({
+  shell: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 10, paddingBottom: Platform.OS === "ios" ? 8 : 6 },
+  bar: { height: 68, borderRadius: 22, borderWidth: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 7, shadowColor: "#000", shadowOpacity: 0.18, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 18 },
+  tab: { flex: 1, height: 58, alignItems: "center", justifyContent: "center", gap: 3, borderRadius: 16 },
+  tabPressed: { opacity: 0.72 },
+  label: { fontSize: 10, fontWeight: "700", letterSpacing: -0.1 },
+  reportButton: { width: 62, height: 62, marginHorizontal: 5, marginTop: -24, borderRadius: 31, alignItems: "center", justifyContent: "center", borderWidth: 4, borderColor: "rgba(242,242,247,0.92)" },
+  reportInner: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#3478F6", alignItems: "center", justifyContent: "center", shadowColor: "#3478F6", shadowOpacity: 0.38, shadowRadius: 14, shadowOffset: { width: 0, height: 7 }, elevation: 10 },
+  pressed: { transform: [{ scale: 0.94 }] },
+});

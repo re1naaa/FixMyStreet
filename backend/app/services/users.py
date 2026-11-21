@@ -85,4 +85,5 @@ def update_profile(db: Session, user: User, payload: ProfileUpdate) -> User:
     refreshed = get_user_by_id(db, user.id)
     if refreshed is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Account could not be loaded")
+    db.refresh(refreshed, attribute_names=["neighborhood"])
     return refreshed

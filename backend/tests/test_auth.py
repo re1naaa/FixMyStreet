@@ -3,8 +3,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.exc import IntegrityError
 
+from app import database
 from app.config import get_settings
-from app.database import SessionLocal
 from app.models import Neighborhood, User, UserRole
 from app.utils.security import hash_password
 
@@ -77,7 +77,7 @@ def test_register_login_and_profile(client: TestClient) -> None:
     assert created["token_type"] == "bearer"
     assert created["user"]["email"] == "citizen@example.com"
 
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         stored = db.query(User).filter(User.email == "citizen@example.com").one()
         assert stored.password_hash != "Citizen123"
@@ -99,7 +99,7 @@ def test_register_login_and_profile(client: TestClient) -> None:
     )
     assert neighborhood.status_code == 201
 
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         area = Neighborhood(name="Test Quarter", slug="test-quarter", description="Used by tests")
         db.add(area)
@@ -162,7 +162,7 @@ def test_authentication_required_and_role_is_loaded_from_database(client: TestCl
     denied = client.get("/api/admin/access", headers={"Authorization": f"Bearer {forged}"})
     assert denied.status_code == 403
 
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         admin = User(
             email="admin@example.com",
@@ -199,7 +199,7 @@ def test_foreign_key_rejects_unknown_neighborhood(client: TestClient) -> None:
     )
     assert missing.status_code == 404
 
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         db.add(
             User(

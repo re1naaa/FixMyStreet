@@ -22,7 +22,7 @@ import type { Neighborhood } from "../types/auth";
 
 export default function RegisterScreen() {
   const { ready, user, signUp } = useSession();
-  const { setLanguage, t } = usePreferences();
+  const { language, setLanguage, t } = usePreferences();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -104,18 +104,18 @@ export default function RegisterScreen() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Pressable style={styles.back} onPress={() => router.back()}>
+          <Pressable style={styles.back} onPress={() => router.replace("/login")}>
             <ArrowLeft size={22} color={colors.text} />
           </Pressable>
           <Text style={styles.title}>{t("register")}</Text>
-          <Text style={styles.subtitle}>Create an account to make your neighborhood better.</Text>
+          <Text style={styles.subtitle}>{language === "sq" ? "Krijo një llogari për ta bërë lagjen më të mirë." : "Create an account to make your neighborhood better."}</Text>
 
           <View style={styles.field}>
             <User size={19} color={colors.muted} />
             <TextInput
               value={fullName}
               onChangeText={setFullName}
-              placeholder="Full name"
+              placeholder={t("fullName")}
               placeholderTextColor={colors.muted}
               style={styles.input}
             />
@@ -151,14 +151,14 @@ export default function RegisterScreen() {
             <TextInput
               value={confirm}
               onChangeText={setConfirm}
-              placeholder="Confirm password"
+              placeholder={t("confirmPassword")}
               placeholderTextColor={colors.muted}
               secureTextEntry={!showPassword}
               style={styles.input}
             />
           </View>
 
-          <Text style={styles.section}>Neighborhood</Text>
+          <Text style={styles.section}>{t("neighborhood")}</Text>
           <View style={styles.choices}>
             {neighborhoods.map((item) => {
               const selected = item.id === neighborhoodId;
@@ -177,7 +177,7 @@ export default function RegisterScreen() {
 
           <Pressable style={styles.terms} onPress={() => setAccepted(!accepted)}>
             <View style={[styles.check, accepted && styles.checkActive]}>{accepted && <Text style={styles.checkMark}>✓</Text>}</View>
-            <Text style={styles.termsText}>I agree to the Terms of Service and Privacy Policy.</Text>
+            <Text style={styles.termsText}>{t("terms")}</Text>
           </Pressable>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -185,7 +185,7 @@ export default function RegisterScreen() {
             {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.buttonText}>{t("register")}</Text>}
           </Pressable>
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
+            <Text style={styles.footerText}>{t("existingAccount")} </Text>
             <Link href="/login" style={styles.link}>
               Sign in
             </Link>
