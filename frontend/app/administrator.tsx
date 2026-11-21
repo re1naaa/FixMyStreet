@@ -31,7 +31,7 @@ export default function AdministratorScreen() {
   );
 }
 
-const styles: typeof StyleSheet.create = StyleSheet.create({
+const styles = StyleSheet.create({
   content: { flex: 1, padding: 24, gap: 16 },
   kicker: { color: colors.accent, fontSize: 13, fontWeight: "700", textTransform: "uppercase" },
   title: { color: colors.text, fontSize: 32, fontWeight: "700" },

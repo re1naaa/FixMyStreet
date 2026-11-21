@@ -7,8 +7,8 @@ outside a development database.
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app import database
 from app.config import get_settings
-from app.database import SessionLocal, create_tables, init_engine
 from app.models import Achievement, Category, Neighborhood, User, UserRole
 from app.utils.security import hash_password
 
@@ -108,11 +108,11 @@ def seed(db: Session) -> None:
 
 def main() -> None:
     settings = get_settings()
-    init_engine(settings)
-    create_tables()
-    if SessionLocal is None:
+    database.init_engine(settings)
+    database.create_tables()
+    if database.SessionLocal is None:
         raise RuntimeError("Database session factory is not initialized")
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         seed(db)
     finally:

@@ -89,6 +89,13 @@ export default function LoginScreen() {
           <Link href="/register" style={styles.link}>
             Create a citizen account
           </Link>
+
+          <View style={styles.demoCard}>
+            <Text style={styles.demoTitle}>Demo accounts</Text>
+            <Text style={styles.demoText}>Citizen: citizen@fixmystreet.local / Citizen123</Text>
+            <Text style={styles.demoText}>Worker: worker@fixmystreet.local / Worker123</Text>
+            <Text style={styles.demoText}>Administrator: admin@fixmystreet.local / Admin123</Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </Screen>
@@ -123,4 +130,14 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
   link: { color: colors.text, textAlign: "center", marginTop: 8, fontSize: 15 },
+  demoCard: {
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 16,
+    borderColor: colors.border,
+    borderWidth: 1,
+  },
+  demoTitle: { color: colors.text, fontSize: 18, fontWeight: "700", marginBottom: 8 },
+  demoText: { color: colors.text, fontSize: 14 },
 });
