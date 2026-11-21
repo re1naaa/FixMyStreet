@@ -6,13 +6,21 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "dev.fixmystreet.pro"
+      "bundleIdentifier": "dev.fixmystreet.pro",
+      "config": {
+        "googleMapsApiKey": "AIzaSyAaW-uFHBSP96SkH0O13_7_XVBziS9JDYU"
+      }
     },
     "android": {
       "package": "dev.fixmystreet.pro",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAaW-uFHBSP96SkH0O13_7_XVBziS9JDYU"
+        }
+      },
       "adaptiveIcon": {
         "backgroundColor": "#0B1220",
         "foregroundImage": "./assets/android-icon-foreground.png",

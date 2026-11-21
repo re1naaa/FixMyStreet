@@ -11,18 +11,24 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, MapPin, User } from "lucide-react-native";
 
 import { Screen } from "../components/Screen";
 import { colors } from "../constants/colors";
 import { useSession } from "../hooks/useSession";
+import { usePreferences } from "../hooks/usePreferences";
 import { ApiError, listNeighborhoods } from "../services/api";
 import type { Neighborhood } from "../types/auth";
 
 export default function RegisterScreen() {
   const { ready, user, signUp } = useSession();
+  const { setLanguage, t } = usePreferences();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [neighborhoodId, setNeighborhoodId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -57,13 +63,25 @@ export default function RegisterScreen() {
   }
 
   if (user) {
-    return <Redirect href="/" />;
+    return <Redirect href="/(tabs)" />;
   }
 
-  async function onSubmit() {
+  async function submit() {
     setError(null);
-    if (fullName.trim().length < 2 || !email.trim() || password.length < 8) {
-      setError("Enter your name, email, and a password of at least 8 characters with a letter and a number.");
+    if (fullName.trim().length < 2 || !email.trim()) {
+      setError("Enter your full name and email.");
+      return;
+    }
+    if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError("Password must be 8 characters with a letter and number.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (!accepted) {
+      setError("Accept the terms to continue.");
       return;
     }
     setSubmitting(true);
@@ -74,7 +92,7 @@ export default function RegisterScreen() {
         password,
         neighborhood_id: neighborhoodId,
       });
-      router.replace("/");
+      router.replace("/(tabs)");
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Registration failed.");
     } finally {
@@ -86,35 +104,59 @@ export default function RegisterScreen() {
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text style={styles.kicker}>FixMyStreet Pro</Text>
-          <Text style={styles.title}>Create account</Text>
-          <Text style={styles.subtitle}>New accounts are citizens. Staff roles are assigned by the municipality.</Text>
+          <Pressable style={styles.back} onPress={() => router.back()}>
+            <ArrowLeft size={22} color={colors.text} />
+          </Pressable>
+          <Text style={styles.title}>{t("register")}</Text>
+          <Text style={styles.subtitle}>Create an account to make your neighborhood better.</Text>
 
-          <TextInput
-            value={fullName}
-            onChangeText={setFullName}
-            placeholder="Full name"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
-          />
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            placeholder="Email"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
-          />
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholder="Password"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
-          />
+          <View style={styles.field}>
+            <User size={19} color={colors.muted} />
+            <TextInput
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="Full name"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+            />
+          </View>
+          <View style={styles.field}>
+            <Mail size={19} color={colors.muted} />
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder={t("email")}
+              placeholderTextColor={colors.muted}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              style={styles.input}
+            />
+          </View>
+          <View style={styles.field}>
+            <LockKeyhole size={19} color={colors.muted} />
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder={t("password")}
+              placeholderTextColor={colors.muted}
+              secureTextEntry={!showPassword}
+              style={styles.input}
+            />
+            <Pressable onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? <EyeOff size={20} color={colors.muted} /> : <Eye size={20} color={colors.muted} />}
+            </Pressable>
+          </View>
+          <View style={styles.field}>
+            <LockKeyhole size={19} color={colors.muted} />
+            <TextInput
+              value={confirm}
+              onChangeText={setConfirm}
+              placeholder="Confirm password"
+              placeholderTextColor={colors.muted}
+              secureTextEntry={!showPassword}
+              style={styles.input}
+            />
+          </View>
 
           <Text style={styles.section}>Neighborhood</Text>
           <View style={styles.choices}>
@@ -126,19 +168,28 @@ export default function RegisterScreen() {
                   onPress={() => setNeighborhoodId(selected ? null : item.id)}
                   style={[styles.choice, selected && styles.choiceSelected]}
                 >
+                  <MapPin size={14} color={selected ? "#FFF" : colors.accent} />
                   <Text style={[styles.choiceText, selected && styles.choiceTextSelected]}>{item.name}</Text>
                 </Pressable>
               );
             })}
           </View>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Pressable style={styles.button} disabled={submitting} onPress={() => void onSubmit()}>
-            {submitting ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.buttonText}>Create account</Text>}
+          <Pressable style={styles.terms} onPress={() => setAccepted(!accepted)}>
+            <View style={[styles.check, accepted && styles.checkActive]}>{accepted && <Text style={styles.checkMark}>✓</Text>}</View>
+            <Text style={styles.termsText}>I agree to the Terms of Service and Privacy Policy.</Text>
           </Pressable>
-          <Link href="/login" style={styles.link}>
-            I already have an account
-          </Link>
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Pressable style={styles.button} disabled={submitting} onPress={() => void submit()}>
+            {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.buttonText}>{t("register")}</Text>}
+          </Pressable>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Already have an account? </Text>
+            <Link href="/login" style={styles.link}>
+              Sign in
+            </Link>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
@@ -148,41 +199,72 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   centered: { flex: 1, alignItems: "center", justifyContent: "center" },
-  content: { padding: 24, gap: 12 },
-  kicker: { color: colors.accent, fontSize: 13, fontWeight: "700", letterSpacing: 0.6 },
-  title: { color: colors.text, fontSize: 34, fontWeight: "700" },
-  subtitle: { color: colors.muted, fontSize: 16, marginBottom: 8 },
-  input: {
+  content: { padding: 24, paddingTop: 12 },
+  back: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: colors.card,
-    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
-    borderRadius: 14,
-    color: colors.text,
-    fontSize: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderColor: colors.border,
   },
-  section: { color: colors.muted, fontSize: 13, marginTop: 4 },
+  title: { color: colors.navy, fontSize: 32, fontWeight: "900", marginTop: 24 },
+  subtitle: { color: colors.muted, fontSize: 15, lineHeight: 22, marginTop: 7, marginBottom: 22 },
+  field: {
+    height: 56,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 15,
+    marginBottom: 12,
+  },
+  input: { flex: 1, color: colors.text, fontSize: 15 },
+  section: { color: colors.text, fontWeight: "800", marginTop: 4, marginBottom: 9 },
   choices: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   choice: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 11,
+    height: 38,
     backgroundColor: colors.card,
   },
   choiceSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
-  choiceText: { color: colors.text, fontSize: 14 },
-  choiceTextSelected: { color: "#FFFFFF", fontWeight: "700" },
-  error: { color: colors.danger, fontSize: 14 },
-  button: {
-    backgroundColor: colors.accent,
-    borderRadius: 14,
-    minHeight: 50,
+  choiceText: { color: colors.text, fontSize: 12, fontWeight: "700" },
+  choiceTextSelected: { color: "#FFF" },
+  terms: { flexDirection: "row", alignItems: "center", gap: 9, marginTop: 16 },
+  check: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
-  buttonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
-  link: { color: colors.text, textAlign: "center", marginTop: 8, fontSize: 15 },
+  checkActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  checkMark: { color: "#FFF", fontSize: 12, fontWeight: "900" },
+  termsText: { flex: 1, color: colors.muted, fontSize: 12 },
+  error: { color: colors.danger, backgroundColor: "#FFEEEE", borderRadius: 10, padding: 10, marginTop: 12, fontSize: 13 },
+  button: {
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16,
+  },
+  buttonText: { color: "#FFF", fontSize: 16, fontWeight: "800" },
+  footer: { flexDirection: "row", justifyContent: "center", marginTop: 18 },
+  footerText: { color: colors.muted, fontSize: 14 },
+  link: { color: colors.accent, fontSize: 14, fontWeight: "800" },
 });
