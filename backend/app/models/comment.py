@@ -1,0 +1,21 @@
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import Base
+from app.utils.time import utcnow
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    report_id: Mapped[int] = mapped_column(ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    is_removed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+    report: Mapped["Report"] = relationship(back_populates="comments")
+    author: Mapped["User"] = relationship(back_populates="comments")
