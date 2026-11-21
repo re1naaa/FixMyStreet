@@ -1,4 +1,4 @@
-import { Redirect } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -59,6 +59,13 @@ export default function AccountScreen() {
           <Row label="Service" value={apiState} />
           <Text style={styles.api}>{API_URL}</Text>
         </View>
+
+        <Pressable
+          style={styles.buttonPrimary}
+          onPress={() => router.push(`/${user.role === "administrator" ? "administrator" : user.role === "worker" ? "worker" : "citizen"}`)}
+        >
+          <Text style={styles.buttonText}>Open {user.role} dashboard</Text>
+        </Pressable>
 
         <Pressable style={styles.button} onPress={() => void signOut()}>
           <Text style={styles.buttonText}>Log out</Text>
@@ -129,6 +136,12 @@ const styles = StyleSheet.create({
   api: {
     color: colors.muted,
     fontSize: 12,
+  },
+  buttonPrimary: {
+    backgroundColor: colors.accent,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
   },
   button: {
     backgroundColor: colors.card,
