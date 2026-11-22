@@ -46,8 +46,8 @@ export default function ReportDetailsScreen() {
       const item = await addFix(token, report.id, fixNote.trim(), photoPath);
       setFixes([...fixes, item]);
       setReport({ ...report, status: "resolved", fix_count: report.fix_count + 1 });
-      setHistory(await getStatusHistory(token, report.id));
       setFixOpen(false); setFixNote(""); setFixPhoto(null);
+      getStatusHistory(token, report.id).then(setHistory).catch(() => {});
     } catch (caught) {
       Alert.alert("Could not post fix", caught instanceof Error ? caught.message : "Try again.");
     } finally {
