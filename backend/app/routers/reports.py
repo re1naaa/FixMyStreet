@@ -90,9 +90,20 @@ def list_reports(
     if mine:
         query = query.where(Report.user_id == user.id)
     if status_filter:
-        query = query.where(Report.status == ReportStatus(status_filter))
+        try:
+            status_value = ReportStatus(status_filter)
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail="Invalid status") from error
+        query = query.where(Report.status == status_value)
     if priority:
-        query = query.where(Report.urgency == Priority(priority))
+        try:
+            priority_value = Priority(priority)
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail="Invalid priority") from error
+        query = query.where(
+            (Report.priority == priority_value)
+            | ((Report.priority.is_(None)) & (Report.urgency == priority_value))
+        )
     if category:
         query = query.join(Category).where(Category.slug == category)
     if search:
