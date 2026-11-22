@@ -15,7 +15,7 @@ export default function IndexScreen() {
         </View>
       </Screen>
     );
-  if (!user) return <Redirect href="/welcome" />;
+  if (!user) return <Redirect href="/login" />;
   return <Redirect href="/(tabs)" />;
 }
 

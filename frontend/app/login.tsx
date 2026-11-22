@@ -25,7 +25,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,7 +51,7 @@ export default function LoginScreen() {
     }
     setSubmitting(true);
     try {
-      await signIn(email, password);
+      await signIn(email, password, remember);
       router.replace("/(tabs)");
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Sign in failed.");
