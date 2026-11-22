@@ -28,12 +28,14 @@ export default function AdminReports() {
     return () => clearTimeout(timer);
   }, [search]);
 
+  const statuses = status.split(",").filter(Boolean);
   const load = useCallback(() => {
     if (!token) return;
     let active = true;
     setLoading(true);
-    listReports(token, { status_filter: status || undefined, search: query || undefined })
-      .then((items) => { if (active) setReports(items); })
+    const wanted = status.split(",").filter(Boolean);
+    listReports(token, { status_filter: wanted.length === 1 ? wanted[0] : undefined, search: query || undefined })
+      .then((items) => { if (active) setReports(wanted.length > 1 ? items.filter((item) => wanted.includes(item.status)) : items); })
       .catch(() => {})
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -68,7 +70,7 @@ export default function AdminReports() {
               key={report.id}
               token={token}
               report={report}
-              onChange={(updated) => setReports((items) => status && updated.status !== status ? items.filter((item) => item.id !== updated.id) : items.map((item) => item.id === updated.id ? updated : item))}
+              onChange={(updated) => setReports((items) => statuses.length && !statuses.includes(updated.status) ? items.filter((item) => item.id !== updated.id) : items.map((item) => item.id === updated.id ? updated : item))}
               onRemove={(id) => setReports((items) => items.filter((item) => item.id !== id))}
             />
           )) : <EmptyState icon={<ClipboardList size={24} color={colors.accent} />} title={t("noMatches")} subtitle="Try another status or search." />}

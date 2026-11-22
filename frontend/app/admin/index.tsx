@@ -34,8 +34,8 @@ export default function AdminDashboard() {
 
   const count = (...keys: Array<keyof AdminOverview["by_status"]>) => keys.reduce((sum, key) => sum + (overview?.by_status[key] ?? 0), 0);
   const tiles = [
-    { label: "New", value: count("submitted", "under_review"), icon: Inbox, color: colors.accent, filter: "submitted" },
-    { label: "Approved", value: count("approved", "assigned"), icon: ShieldCheck, color: colors.accentAlt, filter: "approved" },
+    { label: "New", value: count("submitted", "under_review"), icon: Inbox, color: colors.accent, filter: "submitted,under_review" },
+    { label: "Approved", value: count("approved", "assigned"), icon: ShieldCheck, color: colors.accentAlt, filter: "approved,assigned" },
     { label: "In progress", value: count("in_progress"), icon: Wrench, color: colors.warning, filter: "in_progress" },
     { label: "Resolved", value: count("resolved"), icon: CircleCheck, color: colors.success, filter: "resolved" },
   ];
