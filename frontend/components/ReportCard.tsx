@@ -1,30 +1,53 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { ArrowUp, MapPin } from "lucide-react-native";
-import { colors } from "../constants/colors";
+import { ArrowUp, MapPin, MessageCircle } from "lucide-react-native";
+import { colors, shadow } from "../constants/colors";
+import { usePreferences } from "../hooks/usePreferences";
 import { absolutePhotoUrl } from "../services/reports";
 import type { Report } from "../types/reports";
+import { Gradient } from "./Gradient";
 import { StatusBadge } from "./StatusBadge";
 
+export const priorityColor = (priority: string | null | undefined) =>
+  priority === "critical" ? colors.danger : priority === "high" ? "#FF8A5B" : priority === "medium" ? colors.warning : colors.accentAlt;
+
 export function ReportCard({ report, onPress }: { report: Report; onPress: () => void }) {
+  const { colors: theme } = usePreferences();
   const photo = absolutePhotoUrl(report.photo_url);
   const date = new Date(report.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const priority = report.priority ?? report.urgency;
   return (
-    <Pressable style={styles.card} onPress={onPress}>
-      {photo ? <Image source={{ uri: photo }} style={styles.photo} /> : <View style={[styles.photo, styles.photoPlaceholder]}><MapPin size={22} color={colors.accent} /></View>}
+    <Pressable style={({ pressed }) => [styles.card, { backgroundColor: theme.card, borderColor: theme.border }, pressed && styles.pressed]} onPress={onPress}>
+      <View style={[styles.stripe, { backgroundColor: priorityColor(priority) }]} />
+      {photo ? <Image source={{ uri: photo }} style={styles.photo} /> : <Gradient colors={["#EEEBFF", "#DDF6FD"]} style={[styles.photo, styles.photoPlaceholder]}><MapPin size={24} color={colors.accent} /></Gradient>}
       <View style={styles.body}>
-        <View style={styles.top}><Text style={styles.category}>{report.category_name}</Text><StatusBadge status={report.status} /></View>
-        <Text numberOfLines={2} style={styles.title}>{report.title}</Text>
-        <View style={styles.meta}><Text style={styles.date}>{date}</Text><View style={styles.votes}><ArrowUp size={13} color={colors.muted} /><Text style={styles.voteText}>{report.vote_count}</Text></View></View>
+        <View style={styles.top}><Text numberOfLines={1} style={styles.category}>{report.category_name}</Text><StatusBadge status={report.status} /></View>
+        <Text numberOfLines={2} style={[styles.title, { color: theme.text }]}>{report.title}</Text>
+        <View style={styles.meta}>
+          <Text numberOfLines={1} style={[styles.date, { color: theme.muted }]}>{report.neighborhood_name ? `${report.neighborhood_name} · ` : ""}{date}</Text>
+          <View style={styles.counters}>
+            <View style={styles.counter}><MessageCircle size={13} color={theme.muted} /><Text style={[styles.counterText, { color: theme.muted }]}>{report.comment_count}</Text></View>
+            <View style={[styles.counter, styles.votePill, report.has_voted && { backgroundColor: colors.accent }]}><ArrowUp size={12} color={report.has_voted ? "#FFF" : colors.accent} strokeWidth={2.8} /><Text style={[styles.counterText, { color: report.has_voted ? "#FFF" : colors.accent }]}>{report.vote_count}</Text></View>
+          </View>
+        </View>
       </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { flexDirection: "row", backgroundColor: colors.card, borderRadius: 18, borderWidth: 1, borderColor: colors.border, padding: 10, gap: 11, shadowColor: "#101D35", shadowOpacity: 0.05, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 2 },
-  photo: { width: 92, height: 92, borderRadius: 13 },
-  photoPlaceholder: { alignItems: "center", justifyContent: "center", backgroundColor: colors.lightBlue },
-  body: { flex: 1, justifyContent: "space-between", paddingVertical: 2 }, top: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 6 },
-  category: { color: colors.accent, fontSize: 11, fontWeight: "800", textTransform: "uppercase" }, title: { color: colors.text, fontSize: 15, fontWeight: "800", lineHeight: 20 },
-  meta: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, date: { color: colors.muted, fontSize: 12 }, votes: { flexDirection: "row", alignItems: "center", gap: 3 }, voteText: { color: colors.muted, fontSize: 12, fontWeight: "700" },
+  card: { flexDirection: "row", borderRadius: 22, borderWidth: 1, padding: 10, paddingLeft: 14, gap: 12, overflow: "hidden", ...shadow },
+  pressed: { transform: [{ scale: 0.985 }], opacity: 0.92 },
+  stripe: { position: "absolute", left: 0, top: 14, bottom: 14, width: 4, borderTopRightRadius: 4, borderBottomRightRadius: 4 },
+  photo: { width: 88, height: 88, borderRadius: 16 },
+  photoPlaceholder: { alignItems: "center", justifyContent: "center" },
+  body: { flex: 1, justifyContent: "space-between", paddingVertical: 2 },
+  top: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 6 },
+  category: { flexShrink: 1, color: colors.accent, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.6 },
+  title: { fontSize: 15, fontWeight: "800", lineHeight: 20 },
+  meta: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 6 },
+  date: { flexShrink: 1, fontSize: 11 },
+  counters: { flexDirection: "row", alignItems: "center", gap: 8 },
+  counter: { flexDirection: "row", alignItems: "center", gap: 3 },
+  votePill: { backgroundColor: "rgba(109,93,252,0.10)", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3 },
+  counterText: { fontSize: 11, fontWeight: "800" },
 });

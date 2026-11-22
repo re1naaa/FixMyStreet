@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		padding: 30,
 		gap: 9,
-		shadowColor: "#3478F6",
+		shadowColor: "#6D5DFC",
 		shadowOpacity: 0.12,
 		shadowRadius: 24,
 		elevation: 6,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
 		width: 58,
 		height: 112,
 		borderRadius: 8,
-		backgroundColor: "#3478F6",
+		backgroundColor: "#6D5DFC",
 	},
 	buildingWide: {
 		width: 82,

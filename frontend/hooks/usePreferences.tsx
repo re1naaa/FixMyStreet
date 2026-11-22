@@ -202,43 +202,54 @@ const dictionaries = {
 } as const;
 
 const light = {
-  background: "#F3F6FC",
+  background: "#F5F3FF",
   card: "#FFFFFF",
   elevated: "#FFFFFF",
-  accent: "#397BFF",
-  navy: "#101B32",
-  text: "#101B32",
-  muted: "#6F7C93",
-  danger: "#F05B65",
-  success: "#20B982",
-  warning: "#FFAA45",
-  lightBlue: "#E8F0FF",
-  border: "#DFE7F4",
-  error: "#F05B65",
+  accent: "#6D5DFC",
+  accentAlt: "#22C1EE",
+  navy: "#15123B",
+  text: "#15123B",
+  muted: "#77749A",
+  danger: "#FF5C7A",
+  success: "#12C99B",
+  warning: "#FFAA33",
+  lightBlue: "#EEEBFF",
+  border: "#E7E4FA",
+  error: "#FF5C7A",
 };
 const dark = {
-  background: "#0B1220",
-  card: "#17243B",
-  elevated: "#1D2D49",
-  accent: "#4D8DFF",
-  navy: "#F4F7FF",
-  text: "#F4F7FF",
-  muted: "#A5B2C8",
-  danger: "#FF6574",
-  success: "#28C58A",
-  warning: "#FFB454",
-  lightBlue: "#111C30",
-  border: "#283A55",
-  error: "#FF6574",
+  background: "#0D0B1F",
+  card: "#18153A",
+  elevated: "#211D4A",
+  accent: "#8B7CFF",
+  accentAlt: "#38D2F5",
+  navy: "#F4F2FF",
+  text: "#F4F2FF",
+  muted: "#A8A4CC",
+  danger: "#FF6B88",
+  success: "#2BD9AB",
+  warning: "#FFB84D",
+  lightBlue: "#221E4D",
+  border: "#2C2758",
+  error: "#FF6B88",
 };
 
+function webStorage(): Storage | null {
+  try {
+    return typeof window !== "undefined" && window.localStorage ? window.localStorage : null;
+  } catch {
+    return null;
+  }
+}
+
 async function readPreference(key: string) {
-  if (Platform.OS === "web") return memory.get(key) ?? null;
+  if (Platform.OS === "web") return webStorage()?.getItem(key) ?? memory.get(key) ?? null;
   return SecureStore.getItemAsync(key);
 }
 async function savePreference(key: string, value: string) {
   if (Platform.OS === "web") {
     memory.set(key, value);
+    webStorage()?.setItem(key, value);
     return;
   }
   await SecureStore.setItemAsync(key, value);

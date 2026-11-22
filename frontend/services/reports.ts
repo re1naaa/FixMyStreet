@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { API_URL } from "../constants/config";
 import type {
   Achievement,
@@ -59,6 +60,11 @@ export const getCommunity = (token: string) => request<{ top_supported: Report[]
 
 export async function uploadPhoto(token: string, uri: string, name: string, type: string) {
   const form = new FormData();
-  form.append("file", { uri, name, type } as unknown as Blob);
+  if (Platform.OS === "web") {
+    const blob = await (await fetch(uri)).blob();
+    form.append("file", new File([blob], name, { type: blob.type || type }));
+  } else {
+    form.append("file", { uri, name, type } as unknown as Blob);
+  }
   return request<{ photo_path: string; photo_url: string }>(token, "/api/reports/upload", { method: "POST", body: form });
 }

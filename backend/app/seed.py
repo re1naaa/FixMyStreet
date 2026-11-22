@@ -115,6 +115,7 @@ def seed(db: Session) -> None:
                 is_active=True,
             )
         )
+    db.flush()
     if db.scalar(select(Report).where(Report.reference_code == "FMS-DEMO-001")) is None:
         citizen = db.scalar(select(User).where(User.email == "citizen@gmail.com"))
         categories = {item.slug: item for item in db.scalars(select(Category))}
