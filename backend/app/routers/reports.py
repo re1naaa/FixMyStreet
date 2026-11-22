@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import (
-    Achievement,
     Category,
     Comment,
     CommunityFix,
@@ -18,7 +17,6 @@ from app.models import (
     ReportStatus,
     ReportStatusHistory,
     User,
-    UserAchievement,
     Vote,
 )
 from app.schemas.reports import (
@@ -33,11 +31,19 @@ from app.schemas.reports import (
     ReportCreate,
     ReportPublic,
     ReportStats,
+    ReportUpdate,
 )
+from app.services.rewards import achievement_status, evaluate_achievements
 from app.utils.deps import get_current_user
 from app.utils.time import utcnow
 
 router = APIRouter(prefix="/reports", tags=["reports"])
+
+EDITABLE_STATUSES = {ReportStatus.submitted, ReportStatus.under_review}
+
+
+def _can_edit(report: Report, user_id: int) -> bool:
+    return report.user_id == user_id and report.status in EDITABLE_STATUSES
 
 
 def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -65,7 +71,9 @@ def _public(db: Session, report: Report, user_id: int) -> ReportPublic:
         priority=report.priority.value if report.priority else report.urgency.value,
         status=report.status.value,
         photo_url=(f"/api/uploads/{report.photo_path}" if report.photo_path else None),
+        author_id=report.user_id,
         author_name=report.author.full_name,
+        can_edit=_can_edit(report, user_id),
         vote_count=votes,
         has_voted=any(vote.user_id == user_id for vote in report.votes),
         comment_count=len([comment for comment in report.comments if not comment.is_removed]),
@@ -161,9 +169,9 @@ def read_notification(notification_id: int, db: Session = Depends(get_db), user=
 
 @router.get("/achievements", response_model=list[AchievementPublic])
 def achievements(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    earned_ids = set(db.scalars(select(UserAchievement.achievement_id).where(UserAchievement.user_id == user.id)))
-    items = list(db.scalars(select(Achievement).order_by(Achievement.name)))
-    return [AchievementPublic(code=item.code, name=item.name, description=item.description, earned=item.id in earned_ids) for item in items]
+    if evaluate_achievements(db, user):
+        db.commit()
+    return [AchievementPublic(**item) for item in achievement_status(db, user)]
 
 
 @router.get("/neighborhood-health", response_model=NeighborhoodHealth)
@@ -233,6 +241,7 @@ def create_report(payload: ReportCreate, db: Session = Depends(get_db), user=Dep
     db.flush()
     db.add(ReportStatusHistory(report_id=report.id, from_status=None, to_status=ReportStatus.submitted, changed_by_id=user.id, note="Report submitted by citizen"))
     user.points += 10
+    evaluate_achievements(db, user)
     db.commit()
     db.refresh(report)
     return _public(db, report, user.id)
@@ -243,6 +252,37 @@ def get_report(report_id: int, db: Session = Depends(get_db), user=Depends(get_c
     report = db.get(Report, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Report not found")
+    return _public(db, report, user.id)
+
+
+@router.patch("/{report_id}", response_model=ReportPublic)
+def update_report(report_id: int, payload: ReportUpdate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    report = db.get(Report, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if report.user_id != user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own reports")
+    if report.status not in EDITABLE_STATUSES:
+        raise HTTPException(status_code=409, detail="This report can no longer be edited")
+    fields = payload.model_fields_set
+    if "title" in fields and payload.title is not None:
+        report.title = payload.title.strip()
+    if "description" in fields and payload.description is not None:
+        report.description = payload.description.strip()
+    if "category_id" in fields and payload.category_id is not None:
+        category = db.get(Category, payload.category_id)
+        if category is None:
+            raise HTTPException(status_code=404, detail="Category not found")
+        report.category_id = payload.category_id
+    if "urgency" in fields and payload.urgency is not None:
+        report.urgency = Priority(payload.urgency)
+        report.priority = report.urgency
+    if payload.remove_photo:
+        report.photo_path = None
+    elif "photo_path" in fields and payload.photo_path is not None:
+        report.photo_path = payload.photo_path
+    db.commit()
+    db.refresh(report)
     return _public(db, report, user.id)
 
 
@@ -279,6 +319,8 @@ def add_comment(report_id: int, payload: CommentCreate, db: Session = Depends(ge
         raise HTTPException(status_code=404, detail="Report not found")
     comment = Comment(report_id=report_id, user_id=user.id, body=payload.body)
     db.add(comment)
+    user.points += 2
+    evaluate_achievements(db, user)
     db.commit()
     db.refresh(comment)
     return CommentPublic(id=comment.id, body=comment.body, author_name=user.full_name, created_at=comment.created_at)
@@ -324,6 +366,7 @@ def add_fix(report_id: int, payload: FixCreate, db: Session = Depends(get_db), u
     if report.user_id != user.id:
         db.add(Notification(user_id=report.user_id, report_id=report.id, type="community_fix", title="Someone fixed your report", body=f"{user.full_name} fixed \"{report.title}\"."))
     user.points += 25
+    evaluate_achievements(db, user)
     db.commit()
     db.refresh(fix)
     return _fix_public(fix)

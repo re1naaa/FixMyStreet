@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 const TOKEN_KEY = "fixmystreet.session";
+const ACCOUNT_KEY = "fixmystreet.account";
 
 const memory = new Map<string, string>();
 
@@ -13,35 +14,59 @@ function webStorage(): Storage | null {
   }
 }
 
-export async function readToken(): Promise<string | null> {
+async function readValue(key: string): Promise<string | null> {
   if (Platform.OS === "web") {
-    return webStorage()?.getItem(TOKEN_KEY) ?? memory.get(TOKEN_KEY) ?? null;
+    return webStorage()?.getItem(key) ?? memory.get(key) ?? null;
   }
-  return memory.get(TOKEN_KEY) ?? SecureStore.getItemAsync(TOKEN_KEY);
+  return memory.get(key) ?? SecureStore.getItemAsync(key);
 }
 
-export async function saveToken(token: string, persist = true): Promise<void> {
-  memory.set(TOKEN_KEY, token);
+async function writeValue(key: string, value: string, persist: boolean): Promise<void> {
+  memory.set(key, value);
   if (!persist) {
     if (Platform.OS === "web") {
-      try { webStorage()?.removeItem(TOKEN_KEY); } catch {}
+      try { webStorage()?.removeItem(key); } catch {}
     } else {
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await SecureStore.deleteItemAsync(key);
     }
     return;
   }
   if (Platform.OS === "web") {
-    try { webStorage()?.setItem(TOKEN_KEY, token); } catch {}
+    try { webStorage()?.setItem(key, value); } catch {}
     return;
   }
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
+  await SecureStore.setItemAsync(key, value);
+}
+
+async function removeValue(key: string): Promise<void> {
+  memory.delete(key);
+  if (Platform.OS === "web") {
+    try { webStorage()?.removeItem(key); } catch {}
+    return;
+  }
+  await SecureStore.deleteItemAsync(key);
+}
+
+export async function readToken(): Promise<string | null> {
+  return readValue(TOKEN_KEY);
+}
+
+export async function saveToken(token: string, persist = true): Promise<void> {
+  await writeValue(TOKEN_KEY, token, persist);
 }
 
 export async function clearToken(): Promise<void> {
-  memory.delete(TOKEN_KEY);
-  if (Platform.OS === "web") {
-    try { webStorage()?.removeItem(TOKEN_KEY); } catch {}
-    return;
-  }
-  await SecureStore.deleteItemAsync(TOKEN_KEY);
+  await removeValue(TOKEN_KEY);
+}
+
+export async function readRememberedEmail(): Promise<string | null> {
+  return readValue(ACCOUNT_KEY);
+}
+
+export async function saveRememberedEmail(email: string): Promise<void> {
+  await writeValue(ACCOUNT_KEY, email.trim().toLowerCase(), true);
+}
+
+export async function clearRememberedEmail(): Promise<void> {
+  await removeValue(ACCOUNT_KEY);
 }

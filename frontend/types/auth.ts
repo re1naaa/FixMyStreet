@@ -8,6 +8,9 @@ export type PublicUser = {
   neighborhood_id: number | null;
   neighborhood_name: string | null;
   points: number;
+  level?: number;
+  level_name?: string;
+  level_progress?: number;
   created_at: string;
 };
 

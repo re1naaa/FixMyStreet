@@ -23,6 +23,17 @@ class ReportCreate(BaseModel):
     photo_path: str | None = None
 
 
+class ReportUpdate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    title: str | None = Field(default=None, min_length=3, max_length=140)
+    description: str | None = Field(default=None, min_length=10, max_length=3000)
+    category_id: int | None = None
+    urgency: str | None = Field(default=None, pattern="^(low|medium|high|critical)$")
+    photo_path: str | None = Field(default=None, max_length=255)
+    remove_photo: bool = False
+
+
 class CommentCreate(BaseModel):
     body: str = Field(min_length=1, max_length=1000)
 
@@ -86,7 +97,9 @@ class ReportPublic(BaseModel):
     priority: str | None
     status: str
     photo_url: str | None
+    author_id: int
     author_name: str
+    can_edit: bool = False
     vote_count: int
     has_voted: bool
     comment_count: int
@@ -117,6 +130,9 @@ class AchievementPublic(BaseModel):
     name: str
     description: str
     earned: bool
+    points_reward: int = 0
+    progress: int = 0
+    target: int = 1
 
 
 class NeighborhoodHealth(BaseModel):

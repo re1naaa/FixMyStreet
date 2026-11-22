@@ -18,6 +18,7 @@ import { colors, themedStyles } from "../constants/colors";
 import { useSession } from "../hooks/useSession";
 import { usePreferences } from "../hooks/usePreferences";
 import { ApiError, listNeighborhoods } from "../services/api";
+import { saveRememberedEmail } from "../services/tokenStore";
 import type { Neighborhood } from "../types/auth";
 
 export default function RegisterScreen() {
@@ -92,6 +93,7 @@ export default function RegisterScreen() {
         password,
         neighborhood_id: neighborhoodId,
       });
+      await saveRememberedEmail(email);
       router.replace("/(tabs)");
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Registration failed.");

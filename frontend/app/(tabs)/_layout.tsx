@@ -1,4 +1,4 @@
-import { themedStyles } from "../../constants/colors";
+import { colors, themedStyles } from "../../constants/colors";
 import { Redirect, Tabs, router } from "expo-router";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -49,6 +49,6 @@ const styles = themedStyles(() => ({
   tabPressed: { opacity: 0.7 },
   label: { fontSize: 10, fontWeight: "800", letterSpacing: 0.1 },
   reportButton: { width: 66, height: 66, marginHorizontal: 4, marginTop: -30, borderRadius: 33, alignItems: "center", justifyContent: "center", borderWidth: 5 },
-  reportInner: { width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", shadowColor: "#6D5DFC", shadowOpacity: 0.45, shadowRadius: 14, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
+  reportInner: { width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", shadowColor: colors.accent, shadowOpacity: 0.45, shadowRadius: 14, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
   pressed: { transform: [{ scale: 0.94 }] },
 }));

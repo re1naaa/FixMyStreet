@@ -93,15 +93,30 @@ export const MapView = forwardRef<any, any>(function WebMapView({ style, initial
     layer.clearLayers();
     React.Children.forEach(children, (child: any) => {
       if (!child?.props?.coordinate) return;
-      const { coordinate, pinColor, draggable, title, onPress: onMarkerPress, onDragEnd } = child.props;
-      const color = pinColor || "#6D5DFC";
-      const size = draggable ? 26 : 20;
-      const icon = L.divIcon({
-        className: "",
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size / 2],
-        html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 0 0 6px ${color}33,0 6px 14px rgba(21,18,59,.35);box-sizing:border-box"></div>`,
-      });
+      const { coordinate, pinColor, draggable, title, onPress: onMarkerPress, onDragEnd, badge, dot } = child.props;
+      const color = pinColor || "#007AFF";
+      let icon;
+      if (dot) {
+        icon = L.divIcon({
+          className: "",
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+          html: `<div style="width:16px;height:16px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 0 0 6px ${color}40,0 4px 10px rgba(0,0,0,0.35)"></div>`,
+        });
+      } else {
+        const count = badge === 0 || badge === "" || badge == null ? "" : String(badge);
+        const size = draggable ? 34 : 30;
+        const fontSize = count.length > 2 ? 9 : count.length > 1 ? 10.5 : 12;
+        icon = L.divIcon({
+          className: "",
+          iconSize: [size, size + 8],
+          iconAnchor: [size / 2, size + 6],
+          html: `<div style="position:relative;width:${size}px;height:${size + 8}px">`
+            + `<div style="position:absolute;top:0;left:0;width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.32);display:flex;align-items:center;justify-content:center;color:#fff;font:800 ${fontSize}px -apple-system,'Segoe UI',Roboto,sans-serif">${count}</div>`
+            + `<div style="position:absolute;top:${size - 4}px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid ${color}"></div>`
+            + `</div>`,
+        });
+      }
       const marker = L.marker([coordinate.latitude, coordinate.longitude], { icon, draggable: !!draggable }).addTo(layer);
       if (title) marker.bindTooltip(title);
       if (onMarkerPress) marker.on("click", () => onMarkerPress());
@@ -116,7 +131,7 @@ export const MapView = forwardRef<any, any>(function WebMapView({ style, initial
 
   return React.createElement("div", {
     ref: containerRef,
-    style: { position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#E9E6FB", zIndex: 0, ...(style || {}) },
+    style: { position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#E5E5EA", zIndex: 0, ...(style || {}) },
   });
 });
 

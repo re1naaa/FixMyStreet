@@ -24,7 +24,9 @@ export type Report = {
   priority: Priority | null;
   status: ReportStatus;
   photo_url: string | null;
+  author_id: number;
   author_name: string;
+  can_edit: boolean;
   vote_count: number;
   has_voted: boolean;
   comment_count: number;
@@ -42,6 +44,15 @@ export type ReportCreateInput = {
   urgency: Priority;
   neighborhood_id?: number | null;
   photo_path?: string | null;
+};
+
+export type ReportUpdateInput = {
+  title?: string;
+  description?: string;
+  category_id?: number;
+  urgency?: Priority;
+  photo_path?: string | null;
+  remove_photo?: boolean;
 };
 
 export type ReportStats = {
@@ -87,6 +98,9 @@ export type Achievement = {
   name: string;
   description: string;
   earned: boolean;
+  points_reward?: number;
+  progress?: number;
+  target?: number;
 };
 
 export type NeighborhoodHealth = {

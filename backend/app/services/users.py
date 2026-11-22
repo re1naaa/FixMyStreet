@@ -5,11 +5,14 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.models import Neighborhood, User, UserRole
 from app.schemas.auth import ProfileUpdate, RegisterRequest, UserPublic
+from app.services.rewards import level_for
 from app.utils.security import hash_password, verify_password
 
 
 def to_public(user: User) -> UserPublic:
     neighborhood_name = user.neighborhood.name if user.neighborhood is not None else None
+    level, level_name, into_level, span = level_for(user.points)
+    level_progress = min(100, round((into_level / span) * 100)) if span > 0 else 100
     return UserPublic(
         id=user.id,
         email=user.email,
@@ -18,6 +21,9 @@ def to_public(user: User) -> UserPublic:
         neighborhood_id=user.neighborhood_id,
         neighborhood_name=neighborhood_name,
         points=user.points,
+        level=level,
+        level_name=level_name,
+        level_progress=level_progress,
         created_at=user.created_at,
     )
 

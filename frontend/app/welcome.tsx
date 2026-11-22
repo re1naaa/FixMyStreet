@@ -169,7 +169,7 @@ const styles = themedStyles(() => ({
 		flexDirection: "row",
 		padding: 30,
 		gap: 9,
-		shadowColor: "#6D5DFC",
+		shadowColor: colors.accent,
 		shadowOpacity: 0.12,
 		shadowRadius: 24,
 		elevation: 6,
@@ -184,7 +184,7 @@ const styles = themedStyles(() => ({
 		width: 58,
 		height: 112,
 		borderRadius: 8,
-		backgroundColor: "#6D5DFC",
+		backgroundColor: colors.accent,
 	},
 	buildingWide: {
 		width: 82,

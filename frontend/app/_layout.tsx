@@ -12,7 +12,7 @@ import { PreferencesProvider, usePreferences } from "../hooks/usePreferences";
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ PlusJakartaSans_400Regular, PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold, PlusJakartaSans_800ExtraBold });
   if (!fontsLoaded && !fontError) {
-    return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F6F4FF" }}><ActivityIndicator color="#6D5DFC" /></View>;
+    return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F2F2F7" }}><ActivityIndicator color="#007AFF" /></View>;
   }
   return (
     <SafeAreaProvider>

@@ -12,6 +12,7 @@ import type {
   ReportCreateInput,
   ReportStats,
   ReportStatus,
+  ReportUpdateInput,
 } from "../types/reports";
 import { ApiError } from "./api";
 
@@ -49,6 +50,7 @@ export const listReports = (token: string, params: Record<string, string | boole
 export const getReportStats = (token: string) => request<ReportStats>(token, "/api/reports/stats");
 export const getReport = (token: string, id: number) => request<Report>(token, `/api/reports/${id}`);
 export const createReport = (token: string, input: ReportCreateInput) => request<Report>(token, "/api/reports", { method: "POST", body: JSON.stringify(input) });
+export const updateReport = (token: string, id: number, input: ReportUpdateInput) => request<Report>(token, `/api/reports/${id}`, { method: "PATCH", body: JSON.stringify(input) });
 export const toggleVote = (token: string, id: number) => request<{ supported: boolean; vote_count: number }>(token, `/api/reports/${id}/vote`, { method: "POST" });
 export const getComments = (token: string, id: number) => request<CommentItem[]>(token, `/api/reports/${id}/comments`);
 export const addComment = (token: string, id: number, body: string) => request<CommentItem>(token, `/api/reports/${id}/comments`, { method: "POST", body: JSON.stringify({ body }) });

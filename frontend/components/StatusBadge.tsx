@@ -2,7 +2,7 @@ import { themedStyles } from "../constants/colors";
 import { StyleSheet, Text, View } from "react-native";
 
 const map: Record<string, { label: string; bg: string; color: string }> = {
-  submitted: { label: "Submitted", bg: "rgba(109,93,252,0.12)", color: "#6D5DFC" },
+  submitted: { label: "Submitted", bg: "rgba(0,122,255,0.12)", color: "#007AFF" },
   under_review: { label: "Under review", bg: "rgba(255,170,51,0.15)", color: "#C77A0A" },
   approved: { label: "Approved", bg: "rgba(34,193,238,0.14)", color: "#0E8FB5" },
   assigned: { label: "Assigned", bg: "rgba(168,85,247,0.13)", color: "#9333EA" },

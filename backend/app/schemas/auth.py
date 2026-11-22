@@ -73,6 +73,9 @@ class UserPublic(BaseModel):
     neighborhood_id: int | None
     neighborhood_name: str | None
     points: int
+    level: int = 1
+    level_name: str = "Newcomer"
+    level_progress: int = 0
     created_at: datetime
 
 

@@ -1,5 +1,5 @@
 import { Link, Redirect, router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -18,6 +18,7 @@ import { colors, themedStyles } from "../constants/colors";
 import { useSession } from "../hooks/useSession";
 import { usePreferences } from "../hooks/usePreferences";
 import { ApiError } from "../services/api";
+import { clearRememberedEmail, readRememberedEmail, saveRememberedEmail } from "../services/tokenStore";
 
 export default function LoginScreen() {
   const { ready, user, signIn } = useSession();
@@ -25,9 +26,24 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    readRememberedEmail()
+      .then((saved) => {
+        if (active && saved) {
+          setEmail(saved);
+          setRemember(true);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (!ready) {
     return (
@@ -52,6 +68,11 @@ export default function LoginScreen() {
     setSubmitting(true);
     try {
       await signIn(email, password, remember);
+      if (remember) {
+        await saveRememberedEmail(email);
+      } else {
+        await clearRememberedEmail();
+      }
       router.replace("/");
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Sign in failed.");
