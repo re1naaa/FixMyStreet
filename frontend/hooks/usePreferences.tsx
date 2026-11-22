@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { colors as sharedColors } from "../constants/colors";
+import { colors as sharedColors, darkColors, lightColors } from "../constants/colors";
 
 export type AppLanguage = "en" | "sq";
 export type AppTheme = "light" | "dark";
@@ -21,6 +21,12 @@ const dictionaries = {
     noMatches: "No matching reports",
     tryFilters: "Try another city, category, or filter.",
     home: "Home",
+    adminPanel: "Admin panel",
+    dashboard: "Dashboard",
+    manageReports: "Manage reports",
+    communityFixes: "Community fixes",
+    iFixedIt: "I fixed this",
+    changeStatus: "Change status",
     community: "Community",
     profile: "Profile",
     report: "Report",
@@ -116,6 +122,12 @@ const dictionaries = {
     noMatches: "Nuk u gjetën raporte",
     tryFilters: "Provoni një kategori ose filtër tjetër.",
     home: "Kreu",
+    adminPanel: "Paneli i adminit",
+    dashboard: "Paneli",
+    manageReports: "Menaxho raportet",
+    communityFixes: "Rregullimet nga komuniteti",
+    iFixedIt: "E rregullova unë",
+    changeStatus: "Ndrysho statusin",
     community: "Komuniteti",
     profile: "Profili",
     report: "Raporto",
@@ -201,44 +213,25 @@ const dictionaries = {
   },
 } as const;
 
-const light = {
-  background: "#F3F6FC",
-  card: "#FFFFFF",
-  elevated: "#FFFFFF",
-  accent: "#397BFF",
-  navy: "#101B32",
-  text: "#101B32",
-  muted: "#6F7C93",
-  danger: "#F05B65",
-  success: "#20B982",
-  warning: "#FFAA45",
-  lightBlue: "#E8F0FF",
-  border: "#DFE7F4",
-  error: "#F05B65",
-};
-const dark = {
-  background: "#0B1220",
-  card: "#17243B",
-  elevated: "#1D2D49",
-  accent: "#4D8DFF",
-  navy: "#F4F7FF",
-  text: "#F4F7FF",
-  muted: "#A5B2C8",
-  danger: "#FF6574",
-  success: "#28C58A",
-  warning: "#FFB454",
-  lightBlue: "#111C30",
-  border: "#283A55",
-  error: "#FF6574",
-};
+const light = lightColors;
+const dark = darkColors;
+
+function webStorage(): Storage | null {
+  try {
+    return typeof window !== "undefined" && window.localStorage ? window.localStorage : null;
+  } catch {
+    return null;
+  }
+}
 
 async function readPreference(key: string) {
-  if (Platform.OS === "web") return memory.get(key) ?? null;
+  if (Platform.OS === "web") return webStorage()?.getItem(key) ?? memory.get(key) ?? null;
   return SecureStore.getItemAsync(key);
 }
 async function savePreference(key: string, value: string) {
   if (Platform.OS === "web") {
     memory.set(key, value);
+    try { webStorage()?.setItem(key, value); } catch {}
     return;
   }
   await SecureStore.setItemAsync(key, value);

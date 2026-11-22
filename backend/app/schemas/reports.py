@@ -36,6 +36,30 @@ class CommentPublic(BaseModel):
     created_at: datetime
 
 
+class FixCreate(BaseModel):
+    body: str = Field(min_length=3, max_length=1000)
+    photo_path: str | None = Field(default=None, max_length=255)
+
+
+class FixPublic(BaseModel):
+    id: int
+    body: str
+    photo_url: str | None
+    author_name: str
+    created_at: datetime
+
+
+class StatusUpdate(BaseModel):
+    status: str = Field(pattern="^(submitted|under_review|approved|assigned|in_progress|resolved)$")
+    note: str = Field(default="", max_length=500)
+
+
+class AdminOverview(BaseModel):
+    total: int
+    by_status: dict[str, int]
+    community_fixes: int
+
+
 class StatusHistoryPublic(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -66,6 +90,7 @@ class ReportPublic(BaseModel):
     vote_count: int
     has_voted: bool
     comment_count: int
+    fix_count: int = 0
     created_at: datetime
     updated_at: datetime
 

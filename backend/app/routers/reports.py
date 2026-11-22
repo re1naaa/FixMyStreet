@@ -11,6 +11,7 @@ from app.models import (
     Achievement,
     Category,
     Comment,
+    CommunityFix,
     Notification,
     Priority,
     Report,
@@ -25,6 +26,8 @@ from app.schemas.reports import (
     CategoryPublic,
     CommentCreate,
     CommentPublic,
+    FixCreate,
+    FixPublic,
     NeighborhoodHealth,
     NotificationPublic,
     ReportCreate,
@@ -66,6 +69,7 @@ def _public(db: Session, report: Report, user_id: int) -> ReportPublic:
         vote_count=votes,
         has_voted=any(vote.user_id == user_id for vote in report.votes),
         comment_count=len([comment for comment in report.comments if not comment.is_removed]),
+        fix_count=len(report.fixes),
         created_at=report.created_at,
         updated_at=report.updated_at,
     )
@@ -287,3 +291,39 @@ def status_history(report_id: int, db: Session = Depends(get_db), user=Depends(g
         raise HTTPException(status_code=404, detail="Report not found")
     items = list(db.scalars(select(ReportStatusHistory).where(ReportStatusHistory.report_id == report_id).order_by(ReportStatusHistory.created_at.asc())))
     return [{"id": item.id, "from_status": item.from_status.value if item.from_status else None, "to_status": item.to_status.value, "note": item.note, "created_at": item.created_at} for item in items]
+
+
+def _fix_public(item: CommunityFix) -> FixPublic:
+    return FixPublic(
+        id=item.id,
+        body=item.body,
+        photo_url=f"/api/uploads/{item.photo_path}" if item.photo_path else None,
+        author_name=item.author.full_name,
+        created_at=item.created_at,
+    )
+
+
+@router.get("/{report_id}/fixes", response_model=list[FixPublic])
+def list_fixes(report_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    if db.get(Report, report_id) is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    items = db.scalars(select(CommunityFix).where(CommunityFix.report_id == report_id).order_by(CommunityFix.created_at.asc()))
+    return [_fix_public(item) for item in items]
+
+
+@router.post("/{report_id}/fixes", response_model=FixPublic, status_code=201)
+def add_fix(report_id: int, payload: FixCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    report = db.get(Report, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    fix = CommunityFix(report_id=report_id, user_id=user.id, body=payload.body.strip(), photo_path=payload.photo_path)
+    db.add(fix)
+    if report.status != ReportStatus.resolved:
+        db.add(ReportStatusHistory(report_id=report.id, from_status=report.status, to_status=ReportStatus.resolved, changed_by_id=user.id, note=f"Fixed by community member {user.full_name}"))
+        report.status = ReportStatus.resolved
+    if report.user_id != user.id:
+        db.add(Notification(user_id=report.user_id, report_id=report.id, type="community_fix", title="Someone fixed your report", body=f"{user.full_name} fixed \"{report.title}\"."))
+    user.points += 25
+    db.commit()
+    db.refresh(fix)
+    return _fix_public(fix)

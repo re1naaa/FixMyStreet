@@ -14,7 +14,7 @@ import {
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react-native";
 
 import { Screen } from "../components/Screen";
-import { colors } from "../constants/colors";
+import { colors, themedStyles } from "../constants/colors";
 import { useSession } from "../hooks/useSession";
 import { usePreferences } from "../hooks/usePreferences";
 import { ApiError } from "../services/api";
@@ -25,7 +25,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,8 +51,8 @@ export default function LoginScreen() {
     }
     setSubmitting(true);
     try {
-      await signIn(email, password);
-      router.replace("/(tabs)");
+      await signIn(email, password, remember);
+      router.replace("/");
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Sign in failed.");
     } finally {
@@ -161,7 +161,7 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   flex: { flex: 1 },
   centered: { flex: 1, alignItems: "center", justifyContent: "center" },
   content: { flexGrow: 1, padding: 24, paddingTop: 12 },
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   forgot: { color: colors.accent, fontSize: 13, fontWeight: "700" },
   error: {
     color: colors.danger,
-    backgroundColor: "#FFEEEE",
+    backgroundColor: colors.dangerSoft,
     borderRadius: 10,
     padding: 10,
     marginTop: 14,
@@ -266,4 +266,4 @@ const styles = StyleSheet.create({
   },
   footerText: { color: colors.muted, fontSize: 14 },
   link: { color: colors.accent, fontSize: 14, fontWeight: "800" },
-});
+}));

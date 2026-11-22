@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import { Building2, MapPin, TrendingUp } from "lucide-react-native";
 import { Screen } from "../components/Screen";
-import { colors } from "../constants/colors";
+import { colors, themedStyles } from "../constants/colors";
 import { usePreferences } from "../hooks/usePreferences";
 
 const slides = [
@@ -111,7 +111,7 @@ export default function WelcomeScreen() {
 	);
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
 	content: {
 		flex: 1,
 		paddingHorizontal: 24,
@@ -163,13 +163,13 @@ const styles = StyleSheet.create({
 		width: 260,
 		height: 190,
 		borderRadius: 28,
-		backgroundColor: "#FFFFFF",
+		backgroundColor: colors.card,
 		alignItems: "flex-end",
 		justifyContent: "flex-end",
 		flexDirection: "row",
 		padding: 30,
 		gap: 9,
-		shadowColor: "#3478F6",
+		shadowColor: "#6D5DFC",
 		shadowOpacity: 0.12,
 		shadowRadius: 24,
 		elevation: 6,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
 		width: 58,
 		height: 112,
 		borderRadius: 8,
-		backgroundColor: "#3478F6",
+		backgroundColor: "#6D5DFC",
 	},
 	buildingWide: {
 		width: 82,
@@ -272,4 +272,4 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: "700",
 	},
-});
+}));

@@ -8,7 +8,7 @@ type SessionValue = {
   ready: boolean;
   user: PublicUser | null;
   token: string | null;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, remember?: boolean) => Promise<void>;
   signUp: (input: RegisterInput) => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: PublicUser) => void;
@@ -53,9 +53,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string, remember = true) => {
     const result = await loginRequest(email.trim(), password);
-    await saveToken(result.access_token);
+    await saveToken(result.access_token, remember);
     setToken(result.access_token);
     setUser(result.user);
   }, []);
