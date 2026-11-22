@@ -52,7 +52,7 @@ export default function LoginScreen() {
     setSubmitting(true);
     try {
       await signIn(email, password, remember);
-      router.replace("/(tabs)");
+      router.replace("/");
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Sign in failed.");
     } finally {

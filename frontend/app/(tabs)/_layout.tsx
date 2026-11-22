@@ -37,6 +37,7 @@ export default function TabsLayout() {
   const { ready, user } = useSession();
   if (!ready) return null;
   if (!user) return <Redirect href="/login" />;
+  if (user.role === "administrator") return <Redirect href="/admin" />;
   return <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}><Tabs.Screen name="index" /><Tabs.Screen name="explore" /><Tabs.Screen name="report" /><Tabs.Screen name="community" /><Tabs.Screen name="profile" /></Tabs>;
 }
 

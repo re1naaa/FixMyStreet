@@ -67,3 +67,4 @@ class Report(Base):
     assignments: Mapped[list["WorkerAssignment"]] = relationship(back_populates="report")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="report")
     internal_notes: Mapped[list["InternalNote"]] = relationship(back_populates="report")
+    fixes: Mapped[list["CommunityFix"]] = relationship(back_populates="report")

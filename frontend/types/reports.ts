@@ -28,6 +28,7 @@ export type Report = {
   vote_count: number;
   has_voted: boolean;
   comment_count: number;
+  fix_count: number;
   created_at: string;
   updated_at: string;
 };
@@ -65,6 +66,20 @@ export type CommentItem = {
   body: string;
   author_name: string;
   created_at: string;
+};
+
+export type FixItem = {
+  id: number;
+  body: string;
+  photo_url: string | null;
+  author_name: string;
+  created_at: string;
+};
+
+export type AdminOverview = {
+  total: number;
+  by_status: Record<ReportStatus, number>;
+  community_fixes: number;
 };
 
 export type Achievement = {

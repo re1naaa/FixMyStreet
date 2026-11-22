@@ -3,12 +3,15 @@ import { API_URL } from "../constants/config";
 import type {
   Achievement,
   Category,
+  AdminOverview,
   CommentItem,
+  FixItem,
   NeighborhoodHealth,
   NotificationItem,
   Report,
   ReportCreateInput,
   ReportStats,
+  ReportStatus,
 } from "../types/reports";
 import { ApiError } from "./api";
 
@@ -57,6 +60,12 @@ export const readNotification = (token: string, id: number) => request<void>(tok
 export const getAchievements = (token: string) => request<Achievement[]>(token, "/api/reports/achievements");
 export const getNeighborhoodHealth = (token: string) => request<NeighborhoodHealth>(token, "/api/reports/neighborhood-health");
 export const getCommunity = (token: string) => request<{ top_supported: Report[]; recent: Report[]; leaderboard: Array<{ id: number; name: string; points: number }> }>(token, "/api/reports/community");
+
+export const getFixes = (token: string, id: number) => request<FixItem[]>(token, `/api/reports/${id}/fixes`);
+export const addFix = (token: string, id: number, body: string, photoPath: string | null) => request<FixItem>(token, `/api/reports/${id}/fixes`, { method: "POST", body: JSON.stringify({ body, photo_path: photoPath }) });
+export const getAdminOverview = (token: string) => request<AdminOverview>(token, "/api/admin/overview");
+export const updateReportStatus = (token: string, id: number, status: ReportStatus) => request<Report>(token, `/api/admin/reports/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+export const removeReport = (token: string, id: number) => request<void>(token, `/api/admin/reports/${id}`, { method: "DELETE" });
 
 export async function uploadPhoto(token: string, uri: string, name: string, type: string) {
   const form = new FormData();

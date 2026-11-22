@@ -3,6 +3,7 @@ from app.models.assignment import WorkerAssignment
 from app.models.base import Base
 from app.models.category import Category
 from app.models.comment import Comment
+from app.models.community_fix import CommunityFix
 from app.models.enums import AssignmentStatus, Priority, ReportStatus, UserRole
 from app.models.neighborhood import Neighborhood
 from app.models.note import InternalNote
@@ -18,6 +19,7 @@ __all__ = [
     "Base",
     "Category",
     "Comment",
+    "CommunityFix",
     "InternalNote",
     "Neighborhood",
     "Notification",

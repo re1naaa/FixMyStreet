@@ -16,6 +16,7 @@ export default function IndexScreen() {
       </Screen>
     );
   if (!user) return <Redirect href="/login" />;
+  if (user.role === "administrator") return <Redirect href="/admin" />;
   return <Redirect href="/(tabs)" />;
 }
 

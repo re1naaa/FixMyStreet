@@ -1,5 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { ArrowUp, MapPin, MessageCircle } from "lucide-react-native";
+import { ArrowUp, MapPin, MessageCircle, Sparkles } from "lucide-react-native";
 import { colors, shadow, themedStyles } from "../constants/colors";
 import { usePreferences } from "../hooks/usePreferences";
 import { absolutePhotoUrl } from "../services/reports";
@@ -22,6 +22,7 @@ export function ReportCard({ report, onPress }: { report: Report; onPress: () =>
       <View style={styles.body}>
         <View style={styles.top}><Text numberOfLines={1} style={styles.category}>{report.category_name}</Text><StatusBadge status={report.status} /></View>
         <Text numberOfLines={2} style={[styles.title, { color: theme.text }]}>{report.title}</Text>
+        {report.fix_count > 0 && <View style={styles.fixTag}><Sparkles size={11} color={colors.success} /><Text style={styles.fixTagText}>Fixed by community</Text></View>}
         <View style={styles.meta}>
           <Text numberOfLines={1} style={[styles.date, { color: theme.muted }]}>{report.neighborhood_name ? `${report.neighborhood_name} · ` : ""}{date}</Text>
           <View style={styles.counters}>
@@ -36,6 +37,8 @@ export function ReportCard({ report, onPress }: { report: Report; onPress: () =>
 
 const styles = themedStyles(() => ({
   card: { flexDirection: "row", borderRadius: 22, borderWidth: 1, padding: 10, paddingLeft: 14, gap: 12, overflow: "hidden", ...shadow },
+  fixTag: { flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", backgroundColor: colors.successSoft, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3, marginTop: 4 },
+  fixTagText: { color: colors.success, fontSize: 10, fontWeight: "800" },
   pressed: { transform: [{ scale: 0.985 }], opacity: 0.92 },
   stripe: { position: "absolute", left: 0, top: 14, bottom: 14, width: 4, borderTopRightRadius: 4, borderBottomRightRadius: 4 },
   photo: { width: 88, height: 88, borderRadius: 16 },
