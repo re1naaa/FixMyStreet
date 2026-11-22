@@ -23,7 +23,7 @@ export async function readToken(): Promise<string | null> {
 export async function saveToken(token: string): Promise<void> {
   if (Platform.OS === "web") {
     memory.set(TOKEN_KEY, token);
-    webStorage()?.setItem(TOKEN_KEY, token);
+    try { webStorage()?.setItem(TOKEN_KEY, token); } catch {}
     return;
   }
   await SecureStore.setItemAsync(TOKEN_KEY, token);

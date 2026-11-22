@@ -249,7 +249,7 @@ async function readPreference(key: string) {
 async function savePreference(key: string, value: string) {
   if (Platform.OS === "web") {
     memory.set(key, value);
-    webStorage()?.setItem(key, value);
+    try { webStorage()?.setItem(key, value); } catch {}
     return;
   }
   await SecureStore.setItemAsync(key, value);
