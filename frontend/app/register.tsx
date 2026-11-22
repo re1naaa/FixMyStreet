@@ -14,7 +14,7 @@ import {
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, MapPin, User } from "lucide-react-native";
 
 import { Screen } from "../components/Screen";
-import { colors } from "../constants/colors";
+import { colors, themedStyles } from "../constants/colors";
 import { useSession } from "../hooks/useSession";
 import { usePreferences } from "../hooks/usePreferences";
 import { ApiError, listNeighborhoods } from "../services/api";
@@ -196,7 +196,7 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   flex: { flex: 1 },
   centered: { flex: 1, alignItems: "center", justifyContent: "center" },
   content: { padding: 24, paddingTop: 12 },
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   checkActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   checkMark: { color: "#FFF", fontSize: 12, fontWeight: "900" },
   termsText: { flex: 1, color: colors.muted, fontSize: 12 },
-  error: { color: colors.danger, backgroundColor: "#FFEEEE", borderRadius: 10, padding: 10, marginTop: 12, fontSize: 13 },
+  error: { color: colors.danger, backgroundColor: colors.dangerSoft, borderRadius: 10, padding: 10, marginTop: 12, fontSize: 13 },
   button: {
     height: 56,
     borderRadius: 16,
@@ -267,4 +267,4 @@ const styles = StyleSheet.create({
   footer: { flexDirection: "row", justifyContent: "center", marginTop: 18 },
   footerText: { color: colors.muted, fontSize: 14 },
   link: { color: colors.accent, fontSize: 14, fontWeight: "800" },
-});
+}));

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { colors as sharedColors } from "../constants/colors";
+import { colors as sharedColors, darkColors, lightColors } from "../constants/colors";
 
 export type AppLanguage = "en" | "sq";
 export type AppTheme = "light" | "dark";
@@ -201,38 +201,8 @@ const dictionaries = {
   },
 } as const;
 
-const light = {
-  background: "#F5F3FF",
-  card: "#FFFFFF",
-  elevated: "#FFFFFF",
-  accent: "#6D5DFC",
-  accentAlt: "#22C1EE",
-  navy: "#15123B",
-  text: "#15123B",
-  muted: "#77749A",
-  danger: "#FF5C7A",
-  success: "#12C99B",
-  warning: "#FFAA33",
-  lightBlue: "#EEEBFF",
-  border: "#E7E4FA",
-  error: "#FF5C7A",
-};
-const dark = {
-  background: "#0D0B1F",
-  card: "#18153A",
-  elevated: "#211D4A",
-  accent: "#8B7CFF",
-  accentAlt: "#38D2F5",
-  navy: "#F4F2FF",
-  text: "#F4F2FF",
-  muted: "#A8A4CC",
-  danger: "#FF6B88",
-  success: "#2BD9AB",
-  warning: "#FFB84D",
-  lightBlue: "#221E4D",
-  border: "#2C2758",
-  error: "#FF6B88",
-};
+const light = lightColors;
+const dark = darkColors;
 
 function webStorage(): Storage | null {
   try {

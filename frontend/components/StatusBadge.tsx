@@ -1,3 +1,4 @@
+import { themedStyles } from "../constants/colors";
 import { StyleSheet, Text, View } from "react-native";
 
 const map: Record<string, { label: string; bg: string; color: string }> = {
@@ -14,8 +15,8 @@ export function StatusBadge({ status }: { status: string }) {
   return <View style={[styles.badge, { backgroundColor: item.bg }]}><View style={[styles.dot, { backgroundColor: item.color }]} /><Text style={[styles.text, { color: item.color }]}>{item.label}</Text></View>;
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   badge: { flexDirection: "row", alignItems: "center", gap: 5, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5 },
   dot: { width: 6, height: 6, borderRadius: 3 },
   text: { fontSize: 11, fontWeight: "800" },
-});
+}));

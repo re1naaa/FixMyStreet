@@ -1,3 +1,4 @@
+import { themedStyles } from "../../constants/colors";
 import { Redirect, Tabs, router } from "expo-router";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -39,7 +40,7 @@ export default function TabsLayout() {
   return <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}><Tabs.Screen name="index" /><Tabs.Screen name="explore" /><Tabs.Screen name="report" /><Tabs.Screen name="community" /><Tabs.Screen name="profile" /></Tabs>;
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   shell: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 12, alignItems: "center" },
   bar: { width: "100%", maxWidth: MAX_CONTENT_WIDTH - 24, height: 70, borderRadius: 26, borderWidth: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 6, shadowColor: "#2A1E6B", shadowOpacity: 0.18, shadowRadius: 26, shadowOffset: { width: 0, height: 12 }, elevation: 18, ...(Platform.OS === "web" ? ({ backdropFilter: "blur(18px)" } as object) : {}) },
   tab: { flex: 1, height: 62, alignItems: "center", justifyContent: "center", gap: 2, borderRadius: 18 },
@@ -49,4 +50,4 @@ const styles = StyleSheet.create({
   reportButton: { width: 66, height: 66, marginHorizontal: 4, marginTop: -30, borderRadius: 33, alignItems: "center", justifyContent: "center", borderWidth: 5 },
   reportInner: { width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", shadowColor: "#6D5DFC", shadowOpacity: 0.45, shadowRadius: 14, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
   pressed: { transform: [{ scale: 0.94 }] },
-});
+}));

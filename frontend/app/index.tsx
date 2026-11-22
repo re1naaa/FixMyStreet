@@ -2,7 +2,7 @@ import { Redirect, router } from "expo-router";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Screen } from "../components/Screen";
-import { colors } from "../constants/colors";
+import { colors, themedStyles } from "../constants/colors";
 import { useSession } from "../hooks/useSession";
 
 export default function IndexScreen() {
@@ -19,7 +19,7 @@ export default function IndexScreen() {
   return <Redirect href="/(tabs)" />;
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   centered: {
     flex: 1,
     alignItems: "center",
@@ -91,4 +91,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-});
+}));

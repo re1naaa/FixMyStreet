@@ -2,7 +2,7 @@ import { Redirect, router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Screen } from "../components/Screen";
-import { colors } from "../constants/colors";
+import { colors, themedStyles } from "../constants/colors";
 import { useSession } from "../hooks/useSession";
 
 export default function AdministratorScreen() {
@@ -31,7 +31,7 @@ export default function AdministratorScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   content: { flex: 1, padding: 24, gap: 16 },
   kicker: { color: colors.accent, fontSize: 13, fontWeight: "700", textTransform: "uppercase" },
   title: { color: colors.text, fontSize: 32, fontWeight: "700" },
@@ -40,4 +40,4 @@ const styles = StyleSheet.create({
   item: { color: colors.muted, fontSize: 15, lineHeight: 22 },
   button: { backgroundColor: colors.card, borderRadius: 14, borderWidth: 1, borderColor: colors.border, paddingVertical: 14, alignItems: "center" },
   buttonText: { color: colors.text, fontSize: 16, fontWeight: "600" },
-});
+}));

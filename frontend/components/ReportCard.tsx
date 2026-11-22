@@ -1,6 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { ArrowUp, MapPin, MessageCircle } from "lucide-react-native";
-import { colors, shadow } from "../constants/colors";
+import { colors, shadow, themedStyles } from "../constants/colors";
 import { usePreferences } from "../hooks/usePreferences";
 import { absolutePhotoUrl } from "../services/reports";
 import type { Report } from "../types/reports";
@@ -18,7 +18,7 @@ export function ReportCard({ report, onPress }: { report: Report; onPress: () =>
   return (
     <Pressable style={({ pressed }) => [styles.card, { backgroundColor: theme.card, borderColor: theme.border }, pressed && styles.pressed]} onPress={onPress}>
       <View style={[styles.stripe, { backgroundColor: priorityColor(priority) }]} />
-      {photo ? <Image source={{ uri: photo }} style={styles.photo} /> : <Gradient colors={["#EEEBFF", "#DDF6FD"]} style={[styles.photo, styles.photoPlaceholder]}><MapPin size={24} color={colors.accent} /></Gradient>}
+      {photo ? <Image source={{ uri: photo }} style={styles.photo} /> : <Gradient colors={[colors.lightBlue, colors.soft]} style={[styles.photo, styles.photoPlaceholder]}><MapPin size={24} color={colors.accent} /></Gradient>}
       <View style={styles.body}>
         <View style={styles.top}><Text numberOfLines={1} style={styles.category}>{report.category_name}</Text><StatusBadge status={report.status} /></View>
         <Text numberOfLines={2} style={[styles.title, { color: theme.text }]}>{report.title}</Text>
@@ -34,7 +34,7 @@ export function ReportCard({ report, onPress }: { report: Report; onPress: () =>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   card: { flexDirection: "row", borderRadius: 22, borderWidth: 1, padding: 10, paddingLeft: 14, gap: 12, overflow: "hidden", ...shadow },
   pressed: { transform: [{ scale: 0.985 }], opacity: 0.92 },
   stripe: { position: "absolute", left: 0, top: 14, bottom: 14, width: 4, borderTopRightRadius: 4, borderBottomRightRadius: 4 },
@@ -50,4 +50,4 @@ const styles = StyleSheet.create({
   counter: { flexDirection: "row", alignItems: "center", gap: 3 },
   votePill: { backgroundColor: "rgba(109,93,252,0.10)", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3 },
   counterText: { fontSize: 11, fontWeight: "800" },
-});
+}));
