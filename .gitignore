@@ -8,3 +8,6 @@ frontend/node_modules/
 frontend/.expo/
 frontend/dist/
 frontend/dist-check/
+
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
