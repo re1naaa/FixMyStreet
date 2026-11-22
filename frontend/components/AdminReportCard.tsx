@@ -6,7 +6,7 @@ import { ChevronRight, MapPin, Sparkles, Trash2 } from "lucide-react-native";
 import { colors, shadow, themedStyles } from "../constants/colors";
 import { removeReport, updateReportStatus } from "../services/reports";
 import type { Report, ReportStatus } from "../types/reports";
-import { confirm } from "./confirm";
+import { confirm, errorMessage, notify } from "./confirm";
 import { StatusBadge } from "./StatusBadge";
 
 export const STATUS_OPTIONS: Array<[ReportStatus, string]> = [
@@ -25,6 +25,8 @@ export function StatusPicker({ token, report, onChange }: { token: string; repor
     setSaving(status);
     try {
       onChange(await updateReportStatus(token, report.id, status));
+    } catch (caught) {
+      notify("Could not change status", errorMessage(caught));
     } finally {
       setSaving(null);
     }
@@ -46,8 +48,12 @@ export function StatusPicker({ token, report, onChange }: { token: string; repor
 export function AdminReportCard({ token, report, onChange, onRemove }: { token: string; report: Report; onChange: (report: Report) => void; onRemove: (id: number) => void }) {
   async function remove() {
     if (!(await confirm("Remove report?", `"${report.title}" will be deleted for everyone.`, "Remove"))) return;
-    await removeReport(token, report.id);
-    onRemove(report.id);
+    try {
+      await removeReport(token, report.id);
+      onRemove(report.id);
+    } catch (caught) {
+      notify("Could not remove report", errorMessage(caught));
+    }
   }
   return (
     <View style={styles.card}>
